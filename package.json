@@ -1,41 +1,262 @@
 {
-  "name": "myapp",
+  
+  "main": "public/electron.js",
+  
+  "homepage": "./",
+  
+  "name": "ُexcel-Splitter",
+  
   "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "file-saver": "^2.0.5",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5"
-  },
+  
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  
+    
+  "start": "react-scripts start",
+  
+    
+  "build": "react-scripts build",
+  
+    
+  "test": "react-scripts test",
+  
+    
+  "eject": "react-scripts eject",
+  
+    
+  "electron:dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+  
+    
+  "electron:build": "npm run build && electron-builder",
+  
+    
+  "electron:build-win": "npm run build && electron-builder --win",
+  
+    
+  "electron:build-mac": "npm run build && electron-builder --mac",
+  
+    
+  "electron:build-linux": "npm run build && electron-builder --linux"
+  
   },
+  
+  "build": {
+  
+    
+  "appId": "com.yourcompany.excelsplitter",
+  
+    
+  "productName": "Excel Splitter",
+  
+    
+  "files": [
+  
+    
+    
+  "build/**/*",
+  
+    
+    
+  "node_modules/**/*",
+  
+    
+    
+  "public/electron.js"
+  
+    
+  ],
+  
+    
+  "directories": {
+  
+    
+    
+  "buildResources": "public"
+  
+    
+  },
+  
+    
+  "win": {
+  
+    
+    
+  "target": [
+  
+    
+    
+    
+  "nsis"
+  
+    
+    
+  ],
+  
+    
+    
+  "icon": "public/icon.png"
+  
+    
+  },
+  
+    
+  "mac": {
+  
+    
+    
+  "target": [
+  
+    
+    
+    
+  "dmg"
+  
+    
+    
+  ],
+  
+    
+    
+  "icon": "public/icon.icns"
+  
+    
+  },
+  
+    
+  "linux": {
+  
+    
+    
+  "target": [
+  
+    
+    
+    
+  "AppImage"
+  
+    
+    
+  ],
+  
+    
+    
+  "icon": "public/icon.png"
+  
+    
+  }
+  
+  },
+  
+  "dependencies": {
+  
+    
+  "@testing-library/dom": "^10.4.1",
+  
+    
+  "@testing-library/jest-dom": "^6.9.1",
+  
+    
+  "@testing-library/react": "^16.3.0",
+  
+    
+  "@testing-library/user-event": "^13.5.0",
+  
+    
+  "file-saver": "^2.0.5",
+  
+    
+  "firebase": "^12.5.0",
+  
+    
+  "react": "^19.2.0",
+  
+    
+  "react-dom": "^19.2.0",
+  
+    
+  "react-scripts": "5.0.1",
+  
+    
+  "web-vitals": "^2.1.4",
+  
+    
+  "xlsx": "^0.18.5"
+  
+  },
+  
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  
+    
+  "extends": [
+  
+    
+    
+  "react-app",
+  
+    
+    
+  "react-app/jest"
+  
+    
+  ]
+  
   },
+  
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  
+    
+  "production": [
+  
+    
+    
+  ">0.2%",
+  
+    
+    
+  "not dead",
+  
+    
+    
+  "not op_mini all"
+  
+    
+  ],
+  
+    
+  "development": [
+  
+    
+    
+  "last 1 chrome version",
+  
+    
+    
+  "last 1 firefox version",
+  
+    
+    
+  "last 1 safari version"
+  
+    
+  ]
+  
+  },
+  
+  "devDependencies": {
+  
+    
+  "concurrently": "^9.2.1",
+  
+    
+  "cross-env": "^10.1.0",
+  
+    
+  "electron": "^39.0.0",
+  
+    
+  "electron-builder": "^26.0.12",
+  
+    
+  "wait-on": "^9.0.1"
+  
   }
 }
