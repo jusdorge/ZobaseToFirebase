@@ -3,12 +3,14 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyD3ePiDpi58bRXr7LcwqLDJTcQd1mWXJ2I",
+  authDomain: "posappai.firebaseapp.com",
+  databaseURL: "https://posappai-default-rtdb.firebaseio.com",
+  projectId: "posappai",
+  storageBucket: "posappai.firebasestorage.app",
+  messagingSenderId: "420286289734",
+  appId: "1:420286289734:web:5d4cc41b2fdfba02a1b747",
+  measurementId: "G-HS2500SN24"
 };
 
 const app = initializeApp(firebaseConfig);

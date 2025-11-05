@@ -61,11 +61,18 @@ function App() {
     const raw = entryName.trim();
     if (!raw) return null;
 
-    // دعم الفاصلة العشرية والفاصلة كنقطة
-    const normalizeNumber = (s) => parseFloat(String(s).replace(",", ".")) || 0;
+    // Support both decimal points and commas, and fractions
+    const normalizeNumber = (s) => {
+      // Handle fractions like 1/2, 1/6
+      if (s.includes('/')) {
+        const [num, denom] = s.split('/').map(n => parseFloat(n));
+        return num && denom ? num / denom : 0;
+      }
+      return parseFloat(String(s).replace(",", ".")) || 0;
+    };
 
-    // ابحث عن القوس وما بداخله: (الكمية X السعر)
-    const insideParenthesesMatch = raw.match(/\((\d+(?:[\.,]\d+)?)\s*[xх×Xx]\s*(\d+(?:[\.,]\d+)?)\)/i);
+    // Look for quantity x price pattern inside parentheses
+    const insideParenthesesMatch = raw.match(/\(([\d\/]+(?:[\.,]\d+)?)\s*[xх×Xx]\s*(\d+(?:[\.,]\d+)?)\)/i);
     
     let quantity = 1;
     let price = 0;
@@ -74,34 +81,23 @@ function App() {
       quantity = normalizeNumber(insideParenthesesMatch[1]);
       price = normalizeNumber(insideParenthesesMatch[2]);
     } else {
-      // إذا لم نجد الصيغة الجديدة، نحاول الصيغة القديمة
-      const qtyMatch = raw.match(/\((\d+(?:[\.,]\d+)?)\)/);
+      // Try old format if new format not found
+      const qtyMatch = raw.match(/\(([\d\/]+(?:[\.,]\d+)?)\)/);
       const xPriceMatch = raw.match(/[xх×]\s*(\d+(?:[\.,]\d+)?)/i);
       quantity = qtyMatch ? normalizeNumber(qtyMatch[1]) : 1;
       price = xPriceMatch ? normalizeNumber(xPriceMatch[1]) : 0;
     }
 
-    // استخراج اسم المنتج (كل شيء قبل القوس)
+    // Get original product name (everything before the parentheses)
     let productName = raw.split("(")[0].trim();
     
-    // فصل الاسم الفرنسي والعربي
-    // الفرنسي عادة في البداية (أحرف لاتينية)
-    // العربي في الوسط (أحرف عربية)
-    const frenchMatch = productName.match(/^[a-zA-Z0-9\s\-]+/);
-    const arabicMatch = productName.match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]*/);
-    
-    const frenchName = frenchMatch ? frenchMatch[0].trim() : "";
-    const arabicName = arabicMatch ? arabicMatch[0].trim() : "";
-    
-    // الاسم الكامل للعرض
-    const fullName = [frenchName, arabicName].filter(n => n).join(" ");
-
-    if (!productName) productName = raw;
+    // Keep the original name without any modifications
+    const originalName = productName;
 
     return {
-      productName: fullName || productName,
-      frenchName,
-      arabicName,
+      productName: originalName,  // Use the original name without modifications
+      frenchName: originalName,   // Store the same original name
+      arabicName: "",            // Leave empty since we're not splitting
       quantity,
       price,
       totalPrice: quantity * price
@@ -317,6 +313,45 @@ function App() {
     saveAs(new Blob([wbout], { type: "application/octet-stream" }), name);
   };
 
+const exportTwoCollectionsToFirestore = async (
+  receipts,
+  receiptsWithItems,
+  baseName
+) => {
+  if ((!receipts || receipts.length === 0) && (!receiptsWithItems || receiptsWithItems.length === 0)) {
+    setMessage(`⚠️ لا توجد بيانات لتصديرها (${baseName}).`);
+    return;
+  }
+
+  try {
+    const invoicesRef = collection(db, `${baseName}_invoices`);
+    const detailsRef = collection(db, `${baseName}_invoices_details`);
+
+    // تصدير صفحة receipts
+    if (receipts && receipts.length > 0) {
+      for (const row of receipts) {
+        await addDoc(invoicesRef, row);
+      }
+    }
+
+    // تصدير صفحة receiptswithitems
+    if (receiptsWithItems && receiptsWithItems.length > 0) {
+      for (const row of receiptsWithItems) {
+        await addDoc(detailsRef, row);
+      }
+    }
+
+    setMessage(
+      `✅ تم تصدير ${receipts.length} فاتورة إلى ${baseName}_invoices و ${receiptsWithItems.length} عنصر إلى ${baseName}_invoices_details`
+    );
+  } catch (error) {
+    console.error("Firestore export error:", error);
+    setMessage("⚠️ خطأ أثناء التصدير إلى Firestore: " + error.message);
+  }
+};
+
+
+
   const hasData = (atRowsReceipts.length > 0 || ygRowsReceipts.length > 0 || 
                    atRowsReceiptsWithItems.length > 0 || ygRowsReceiptsWithItems.length > 0);
 
@@ -446,6 +481,43 @@ function App() {
                 تنزيل ملف YG
               </button>
             )}
+<button
+  onClick={() =>
+    exportTwoCollectionsToFirestore(
+      atRowsReceipts,
+      atRowsReceiptsWithItems,
+      "AT"
+    )
+  }
+  style={{
+    padding: "8px 12px",
+    cursor: "pointer",
+    background: "#4CAF50",
+    color: "#fff",
+  }}
+>
+  تصدير ملف AT إلى Firestore
+</button>
+<button
+  onClick={() =>
+    exportTwoCollectionsToFirestore(
+      atRowsReceipts,
+      atRowsReceiptsWithItems,
+      "YG"
+    )
+  }
+  style={{
+    padding: "8px 12px",
+    cursor: "pointer",
+    background: "#2196F3",
+    color: "#fff",
+  }}
+>
+  تصدير ملف YG إلى Firestore
+</button>
+
+
+
           </div>
         </div>
       )}
